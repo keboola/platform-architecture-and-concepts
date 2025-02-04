@@ -1,20 +1,20 @@
 # Connection Service
 
-The Connection service is a crucial component of the Keboola platform that provides and manages access to the Storage API. It acts as the gateway for all data storage operations within the Keboola ecosystem.
+The Connection service is a crucial component of the Keboola platform that provides and manages access to external systems. It acts as the gateway for all external system connections within the Keboola ecosystem.
 
 ## Primary Responsibilities
 
-1. **Storage API Management**
-   - Provides and maintains the Storage API endpoints
+1. **Connection Management**
+   - Provides and maintains connection endpoints
    - Handles authentication and authorization
    - Manages API tokens and their permissions
    - Implements rate limiting and quota management
 
-2. **Data Storage Operations**
-   - Coordinates data storage operations
-   - Manages table and bucket operations
-   - Handles workspace provisioning
-   - Manages file storage operations
+2. **External System Operations**
+   - Coordinates connection operations
+   - Manages system credentials
+   - Handles connection provisioning
+   - Manages connection states
 
 3. **Security**
    - Token-based authentication
@@ -25,7 +25,7 @@ The Connection service is a crucial component of the Keboola platform that provi
 ## Integration Points
 
 The Connection service integrates with:
-- Storage backend services
+- External systems
 - Authentication services
 - Monitoring and logging systems
 - Other Keboola platform services
@@ -54,13 +54,13 @@ The Connection service follows a microservices architecture and is responsible f
 
 3. **Maintenance**
    - Zero-downtime deployments
-   - Database migrations
    - Configuration management
+   - System updates
 
 ## Service Endpoints
 
-The Connection service exposes the Storage API through RESTful endpoints, providing:
-- Data management operations
+The Connection service exposes its API through RESTful endpoints, providing:
+- Connection management operations
 - Token management
 - System status information
 - Usage statistics 

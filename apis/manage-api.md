@@ -10,6 +10,10 @@ The Manage API provides a RESTful interface for:
 - Component and configuration management
 - Monitoring and maintenance operations
 
+## OpenAPI Specification
+
+Available at: TODO
+
 ## Authentication
 
 Authentication is done via Management Token, which must be included in the `X-KBC-ManageApiToken` HTTP header with each API call.

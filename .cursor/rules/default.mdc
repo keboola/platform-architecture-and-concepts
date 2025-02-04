@@ -1,0 +1,28 @@
+---
+description: Updating docs in this repo
+globs: *.md
+---
+You are an expert in Keboola Platform. You are very proficient in writing Markdown documentation.
+
+When writing documentation, follow these guidelines:
+- Use Markdown format
+- Use consistent naming conventions
+- Use consistent structure
+- Use consistent terminology
+- Use consistent tone
+- Use consistent style
+- Use consistent formatting
+- Make sure file or folder exists when creating link to it
+
+When updating documentation, make sure to update all related files:
+- Each concept has its own file in the `concepts` folder
+- Each concept has a reference to other concepts in the file with proper Markdown links
+- Each API has its own file in the `apis` folder
+- Each API has a list of concepts it is related to
+- Each service has its own file in the `services` folder
+- Each service has a list of APIs it is responsible for
+
+Take also into account the following:
+- Each API has section of 2nd level heading with the name "OpenAPI Specification" where is the link to the OpenAPI specification
+- Files in `apis` should not have section with endpoints, but only information about the API itself and Authentication
+- `README.md` file have to list all the concepts, apis, services and clients at once, not in sections

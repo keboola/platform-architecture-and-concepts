@@ -1,25 +1,60 @@
 # Storage API
 
-Storage API is the core API of the Keboola platform that provides access to all data storage capabilities. It serves as the primary interface for managing data, tables, buckets, and workspaces within the Keboola environment.
+The Storage API is the core API for managing data in Keboola Platform.
 
 ## Overview
 
-The Storage API provides a RESTful interface for:
-- Importing and exporting CSV data to/from Table Storage
-- Loading files into File Storage
-- Managing tables, including keys and indexes
-- Managing buckets and sharing
-- Managing component configurations
+The Storage API provides functionality for managing buckets, tables, files, and workspaces. It is the primary interface for data storage and retrieval operations in the platform.
+
+## OpenAPI Specification
+
+Available at: https://storage.north-europe.azure.keboola.com/docs/swagger.yaml
+
+## Authentication
+
+The API uses a dedicated token for authentication:
+- `X-StorageApi-Token`: Required for all operations
+- Token can be generated in the Keboola UI with specific permissions
+- Different token types available:
+  - Master token
+  - Component token
+  - Read-only token
+
+## Key Features
+
+- Bucket management
+- Table operations
+- File uploads and downloads
+- Data import and export
+- Metadata management
+- Workspace handling
+
+## Related Concepts
+
+- [Bucket](../concepts/bucket.md)
+- [Table Alias](../concepts/table-alias.md)
+- [Input Mapping](../concepts/input-mapping.md)
+- [Output Mapping](../concepts/output-mapping.md)
+- [Data Integration](../concepts/data-integration.md)
+- [Data Transformation](../concepts/data-transformation.md)
+
+## Related APIs
+
+- [Queue API](queue-api.md)
+- [Transformation API](transformation-api.md)
+
+## Services
+
+The Storage API is managed by the following services:
+- Storage Service
+- File Service
+- Workspace Service
 
 ## Data Format Requirements
 
 - CSV files must follow [RFC4180 Specification](http://tools.ietf.org/html/rfc4180)
 - Files must use `UTF-8` encoding
 - Files can be sent uncompressed or gzipped
-
-## Authentication
-
-Authentication is done via Storage API Token, which must be included in the `X-StorageApi-Token` HTTP header with each API call. The token provides both authentication and authorization to a single project.
 
 ## HTTP Headers
 
@@ -79,35 +114,6 @@ The API implements rate limiting for system stability:
 7. Validate data before import
 8. Use appropriate bucket organization
 9. Implement proper logging and monitoring
-
-## Key Features
-
-1. **Table Management**
-   - Create and delete tables
-   - Import and export data
-   - Manage table metadata
-   - Handle table aliases
-
-2. **Bucket Operations**
-   - Create and organize buckets
-   - Set bucket properties
-   - Manage sharing and access rights
-
-3. **Data Operations**
-   - Bulk data loading
-   - Incremental data loading
-   - Data preview and exploration
-   - Data validation
-
-4. **Workspace Management**
-   - Create and delete workspaces
-   - Load data into workspaces
-   - Manage workspace access
-
-5. **File Storage**
-   - Upload and download files
-   - Manage file tags
-   - Handle file permissions
 
 ## Data Types
 

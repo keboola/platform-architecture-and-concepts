@@ -1,104 +1,70 @@
 # Component
 
-A Component in Keboola is a modular building block that performs specific operations within the platform. It represents a standalone, configurable piece of functionality that can be used to build data pipelines and workflows. Components run in isolated Docker containers and communicate with the Keboola platform through a standardized API.
+A Component in Keboola is a modular building block that allows you to extend the platform's functionality. Components exchange data through CSV files in designated directories and run in isolated Docker environments.
 
-## Key Features
+## Overview
 
-1. **Component Types**
-   - Extractors (data sources) - Import data from external sources
-   - Writers (data destinations) - Export data to external systems
-   - Transformations (data processing) - SQL, Python, R, or Julia code execution
-   - Applications (custom functionality) - Specialized data operations
-   - Generic components - Reusable operations like SQL/Python/R code execution
+Components are the building blocks for extending Keboola functionality. Each component must adhere to a common interface that specifies how CSV files and designated folders are used to exchange data between Keboola and the component.
 
-2. **Architecture**
-   - Docker-based isolation
-   - Standardized interface
-   - Configuration management
-   - Input/Output mapping
-   - Error handling
-   - Environment variables
-   - Data folders structure (/data/in/tables, /data/out/tables)
-   - State persistence
+The main data exchange patterns are:
+- Applications process input tables from CSV files and generate result tables in CSV files
+- Extractors write results like applications but get input from external sources
+- Writers read input tables like applications but push results to external systems
 
-3. **Management**
-   - Version control
-   - Configuration storage
-   - Access control
-   - Resource allocation
-   - Performance monitoring
-   - Component registration
-   - Developer Portal integration
-   - Continuous deployment
+## Component Types
 
-4. **Integration**
-   - Storage API integration
-   - Inter-component communication
-   - Orchestration support
-   - Event system integration
-   - Workspace interaction
-   - OAuth support
-   - Encryption support
+The following component types are currently supported:
 
-## Implementation Guidelines
+1. **Extractor**
+   - Brings data into Keboola Storage
+   - Uses no Storage tables on input
+   - Has a user interface
+   - Primary purpose is data extraction from external systems
 
-1. **Component Structure**
-   - Docker image
-   - Component specification file (component.json)
-   - Configuration schema (configSchema.json)
-   - Runtime parameters
-   - Data folders structure
+2. **Writer**
+   - Loads data from Storage into external systems
+   - Generates no Storage tables on output
+   - Has a user interface
+   - Primary purpose is data export to external systems
 
-2. **Development Requirements**
-   - Docker support
-   - Adherence to API specifications
-   - Error handling and logging
-   - Configuration validation
-   - Memory and CPU constraints
-   - Exit codes handling
+3. **Application**
+   - Processes data in Storage
+   - Can work as wrapped transformation
+   - May use external services
+   - Has a user interface
 
-3. **Common Features**
-   - Configuration parameters
-   - OAuth support
-   - Encryption
-   - Logging
-   - State management
-   - Data mapping
+4. **Processor**
+   - Designed for post-processing or pre-processing data
+   - Not designed to run standalone
+   - Has no user interface
 
-## Usage Patterns
+5. **Code Pattern**
+   - Generates code for transformations
+   - Has a user interface
 
-1. **Data Pipeline Building**
-   - Data extraction
-   - Data transformation
-   - Data loading
-   - Data processing
-   - Data validation
+## Common Interface Features
 
-2. **Process Automation**
-   - Workflow automation
-   - Scheduled operations
-   - Event-driven processing
-   - Error handling
-   - Status monitoring
+The common interface provides extensive functionality:
+- Parameter passing
+- Error control
+- Metadata management
+- OAuth support
+- Non-CSV file handling
+- Logging configuration
 
-## Best Practices
+## Implementation Requirements
 
-1. Use appropriate component types
-2. Maintain clear configurations
-3. Monitor component performance
-4. Handle errors gracefully
-5. Document component usage
-6. Test component interactions
-7. Version control configurations
-8. Regular maintenance updates
-9. Follow security guidelines
-10. Implement proper logging
-11. Use configuration validation
-12. Handle rate limits appropriately
+To develop a new component, you need:
+1. A Keboola project for testing
+2. Docker knowledge and ability to run docker commands
+3. API request capabilities (Postman recommended)
+4. Git repository (Github or Bitbucket recommended)
 
 ## Related Concepts
 - [Configuration](./configuration.md)
 - [Job](./job.md)
-- [Workspace](./workspace.md)
-- [Development Branch](./development-branch.md)
-- [Artifact](./artifact.md) 
+- [Docker Runner](./docker-runner.md)
+- [Common Interface](./common-interface.md)
+
+## OpenAPI Specification
+For detailed API documentation, see the [Components API specification](https://app.swaggerhub.com/apis-docs/keboola/components/) 
