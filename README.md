@@ -13,7 +13,6 @@ This repository contains documentation of Keboola Platform architecture and conc
 
 - [Artifact](./concepts/artifact.md) - Build and deployment artifacts
 - [Bucket](./concepts/bucket.md) - Data organization units
-- [Collaboration](./concepts/collaboration.md) - Team work and sharing features
 - [Component](./concepts/component.md) - Modular units that perform specific tasks
 - [Configuration](./concepts/configuration.md) - Defines how components are configured
 - [Development Branch](./concepts/development-branch.md) - Isolated development environment
@@ -28,7 +27,6 @@ This repository contains documentation of Keboola Platform architecture and conc
 - [Organization](./concepts/organization.md) - Group of related projects
 - [Output Mapping](./concepts/output-mapping.md) - Data output configuration
 - [Project](./concepts/project.md) - Container for user resources
-- [Scalability](./concepts/scalability.md) - Platform scaling capabilities
 - [Stack](./concepts/stack.md) - Independent platform instance
 - [Storage](./concepts/storage.md) - Data storage system
 - [Storage Backend](./concepts/storage-backend.md) - Underlying storage technology
@@ -37,6 +35,7 @@ This repository contains documentation of Keboola Platform architecture and conc
 - [Table Alias](./concepts/table-alias.md) - Virtual table references
 - [Ticket](./concepts/ticket.md) - Support and issue tracking
 - [Token](./concepts/token.md) - Authentication and authorization
+- [Transformation](./concepts/transformation.md) - Data processing and analysis
 - [Trigger](./concepts/trigger.md) - Automated execution conditions
 - [Variable](./concepts/variable.md) - Dynamic configuration placeholders
 - [Workspace](./concepts/workspace.md) - Development and analysis environments
