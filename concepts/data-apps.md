@@ -58,6 +58,7 @@ The system consists of several components that together manage the lifecycle of 
 - Multi-cloud persistent storage (AWS EFS, Azure File Share, GCP Filestore)
 - Proxy config endpoint consumed by Apps Proxy (`GET /apps/{id}/proxy-config`)
 - Activity tracking (`lastRequestTimestamp`) for auto-suspend decisions (notified by Apps Proxy)
+- **Auto-suspend CRON job**: periodically checks `lastRequestTimestamp` for each running app and stops idle apps by patching their App CRD state to `Stopped`
 - Integration with Storage API, Encryption API, Manage API, Billing API
 
 **State machine**:
