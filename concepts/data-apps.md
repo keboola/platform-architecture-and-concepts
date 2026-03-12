@@ -19,29 +19,27 @@ The system consists of several components that together manage the lifecycle of 
                          │ - Wake-up sleeping    │
                          │ - Activity tracking   │
                          │ - WebSocket support   │
-                         └──────┬───────┬────────┘
-                                │       │
-              ┌─────────────────┘       └──────────────────┐
-              │ GET /apps/{id}/proxy-config                │
-              │ PATCH /apps/{id} (wake-up, notify)         │
-              │                                            │
-   ┌──────────▼───────────┐                     ┌──────────▼──────────┐
-   │  Sandboxes Service   │                     │   App Pod (K8s)     │
-   │  (PHP/Symfony, API)  │                     │  (Streamlit, etc.)  │
-   │                      │                     └─────────────────────┘
-   │ - CRUD lifecycle API │                               ▲
-   │ - State management   │                               │
-   │ - Config validation  │                      manages lifecycle
-   │ - Persistent storage │                               │
-   └──────────┬───────────┘                     ┌─────────┴───────────┐
-              │                                 │  Keboola Operator   │
-              │ creates/patches App CRD         │  (Go, K8s operator) │
-              │                                 │                     │
-              └────────────────────────────────►│ - Reconciles CRDs   │
-                                                │ - Manages Deploys   │
-                    Kubernetes API               │ - Token rotation    │
-                                                │ - Billing (AppRun)  │
-                                                └─────────────────────┘
+                         └──┬──────┬─────────┬───┘
+                            │      │         │
+     GET /apps/{id}/proxy-config   │   K8s API: watch/patch
+     PATCH /apps/{id} (notify)     │   App CRs (state, wakeup)
+                            │      │         │
+                 ┌──────────▼──┐   │    ┌────▼────────────────┐
+                 │  Sandboxes  │   │    │   Kubernetes API     │
+                 │  Service    │   │    └────┬────────────────┘
+                 └─────────────┘   │         │
+                                   │    ┌────▼────────────────┐
+                        ┌──────────▼─┐  │  Keboola Operator   │
+                        │ App Pod    │  │  (Go, K8s operator)  │
+                        │ (K8s)     │  │                      │
+                        └────────────┘  │ - Reconciles CRDs   │
+                              ▲         │ - Manages Deploys   │
+                              │         │ - Token rotation    │
+                     manages lifecycle  │ - Billing (AppRun)  │
+                              │         └─────────────────────┘
+                              │                  ▲
+                 Sandboxes Service ───────────────┘
+                   creates/patches App CRD
 ```
 
 ## Component 1: Sandboxes Service
@@ -59,7 +57,7 @@ The system consists of several components that together manage the lifecycle of 
 - App type registry (Streamlit, PythonJs, Jupyter variants, DB workspaces) — each type generates its own CRD manifest
 - Multi-cloud persistent storage (AWS EFS, Azure File Share, GCP Filestore)
 - Proxy config endpoint consumed by Apps Proxy (`GET /apps/{id}/proxy-config`)
-- Activity tracking (`lastRequestTimestamp`) for auto-suspend decisions
+- Activity tracking (`lastRequestTimestamp`) for auto-suspend decisions (notified by Apps Proxy)
 - Integration with Storage API, Encryption API, Manage API, Billing API
 
 **State machine**:
@@ -121,17 +119,24 @@ CREATED → STARTING → RUNNING ↔ RESTARTING
 3. Loads app config from Sandboxes Service (cached with ETag)
 4. Matches request path against auth rules
 5. Enforces authentication (OAuth2 / Basic password / public)
-6. Proxies to upstream app pod via K8s service DNS
+6. Pre-checks app state from cached App CR status:
+   - **Running** → proxy to upstream app pod
+   - **Starting** → show loading spinner page
+   - **Stopped/Stopping** → trigger wake-up, show loading spinner page
+   - **AutoRestartEnabled=false** → show restart-disabled page
 
 ### Authentication
 
 Providers: OIDC, GitHub, GitLab, JumpCloud, Basic password — configurable per-path with multi-provider selection page.
 
-### Wake-up Mechanism
+### Kubernetes Integration
 
-- DNS resolution failure → sends `PATCH /apps/{id} {"desiredState": "running"}` to Sandboxes Service
-- Throttled to max 1 wake-up/second per app
-- Shows loading spinner while app starts
+Apps Proxy watches `App` CRs (`apps.keboola.com/v2`) directly via Kubernetes API:
+- **State check**: reads `.status.currentState` from App CR to determine if the app is running, starting, or stopped
+- **Wake-up**: patches App CR `.spec.state = "Running"` directly (sandboxes service is not in the wake-up path)
+- **Upstream URL**: resolved from `.status.appsProxy.upstreamUrl` in the App CR
+
+This replaced the previous DNS-based approach where the proxy detected stopped apps via DNS resolution failures and routed wake-up requests through the Sandboxes Service API.
 
 ### Activity Tracking
 
@@ -147,9 +152,10 @@ Providers: OIDC, GitHub, GitLab, JumpCloud, Basic password — configurable per-
 
 ```
 Apps Proxy ──GET /apps/{id}/proxy-config──► Sandboxes Service
-           ──PATCH /apps/{id} (wakeup)───►
            ──PATCH /apps/{id} (notify)───►
-           ──DNS resolve──────────────────► K8s Service (to app pod)
+           ──K8s Watch App CRs───────────► Kubernetes API (state monitoring)
+           ──K8s Patch App CR (wakeup)───► Kubernetes API (sets spec.state=Running)
+           ──HTTP proxy──────────────────► App Pod (upstream URL from App CR status)
 
 Sandboxes Service ──App CRD create/patch──► Kubernetes API ──► Keboola Operator
                   ──App CRD status read───► Kubernetes API
