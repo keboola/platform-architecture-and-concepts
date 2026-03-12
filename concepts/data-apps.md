@@ -64,10 +64,10 @@ The system consists of several components that together manage the lifecycle of 
 **State machine** (OPERATOR strategy — CRD status is source of truth):
 ```
 CREATED → STARTING → RUNNING ↔ RESTARTING
-                       ↓
-                    STOPPING → STOPPED
-                       ↓
-                    DELETING → DELETED
+                       │
+                       ├──► STOPPING → STOPPED
+                       │
+                       └──► DELETING → DELETED
 ```
 
 **Who drives each state transition**:
@@ -82,7 +82,7 @@ CREATED → STARTING → RUNNING ↔ RESTARTING
 | STOPPED → STARTING (wake-up via URL) | Apps Proxy | User opens app URL; proxy patches `spec.state=Running` only (no deployment changes) |
 | STOPPED → STARTING (wake-up via API) | Sandboxes Service | API call sets `desiredState=Running` only (no deployment changes) |
 | STOPPED → STARTING (re-deploy via API) | Sandboxes Service | API call supplies `configVersion` + optionally `restartIfRunning: true`; regenerates App CRD with latest config |
-| RUNNING → RESTARTING | Sandboxes Service | Patches App CRD on user API call |
+| RUNNING → RESTARTING (re-deploy) | Sandboxes Service | API call supplies `configVersion` + `restartIfRunning: true`; regenerates App CRD with latest config |
 | RUNNING → DELETING | Sandboxes Service | Deletes App CRD on user API call |
 | DELETING → DELETED | Keboola Operator | Cleans up Deployment, Services, tokens; CRD is removed |
 
@@ -150,7 +150,7 @@ Providers: OIDC, GitHub, GitLab, JumpCloud, Basic password — configurable per-
 
 Apps Proxy watches `App` CRs (`apps.keboola.com/v2`) directly via Kubernetes API:
 - **State check**: reads `.status.currentState` from App CR to determine if the app is running, starting, or stopped
-- **Wake-up**: patches App CR `.spec.state = "Running"` directly (sandboxes service is not in the wake-up path)
+- **Wake-up**: patches App CR `.spec.state = "Running"` directly (sandboxes service is not in this wake-up path — see [Lifecycle Flows](#lifecycle-flows) for the full picture)
 - **Upstream URL**: resolved from `.status.appsProxy.upstreamUrl` in the App CR
 
 This replaced the previous DNS-based approach where the proxy detected stopped apps via DNS resolution failures and routed wake-up requests through the Sandboxes Service API.
@@ -204,7 +204,7 @@ User clicks Start / API call with desiredState=Running
   → Apps Proxy: K8s informer picks up Running state, app becomes routable
 ```
 
-**Re-deploy** — supplies `configVersion` (and optionally `restartIfRunning: true` to re-deploy an already running app). Sandboxes Service regenerates the entire App CRD manifest from the specified config version (image, environment, mounts, etc.), so the Operator creates a new Deployment revision.
+**Re-deploy** — supplies `configVersion` and optionally `restartIfRunning: true` (to re-deploy an already running app). Sandboxes Service regenerates the entire App CRD manifest from the specified config version (image, environment, mounts, etc.), so the Operator creates a new Deployment revision.
 
 ```
 User clicks Deploy / API call with configVersion (+ restartIfRunning: true)
