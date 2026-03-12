@@ -52,6 +52,7 @@ This repository contains documentation of Keboola Platform architecture and conc
 
 ## Services
 
+- [Apps Proxy Service](./services/apps-proxy.md) - Reverse proxy for data apps (auth, wake-up, routing)
 - [Billing Service](./services/billing.md) - Manages usage tracking and billing
 - [Connection Service](./services/connection.md) - Manages connections to external systems
 - [Encryption Service](./services/encryption.md) - Handles data encryption
